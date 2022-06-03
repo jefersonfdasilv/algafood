@@ -4,11 +4,19 @@ import java.util.List;
 
 import br.com.silva.algafood.domain.model.Cozinha;
 import br.com.silva.algafood.domain.repository.CozinhaRepository;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Repository;
+
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 
 
-public class CozinhaRepositoryImpl extends BaseRepository implements CozinhaRepository{
+@Repository
+@AllArgsConstructor
+public class CozinhaRepositoryImpl implements CozinhaRepository{
 
-	
+	@PersistenceContext
+	protected EntityManager manager;
 	@Override
 	public List<Cozinha> listar() {
 		return manager.createQuery("from Cozinha", Cozinha.class)
