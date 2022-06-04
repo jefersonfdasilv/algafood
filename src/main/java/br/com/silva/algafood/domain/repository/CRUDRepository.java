@@ -7,4 +7,5 @@ public interface CRUDRepository<T> {
 	T buscar(Long id);
 	T salvar(T model);
 	void remover(T model);
+	void remover(Long id);
 }

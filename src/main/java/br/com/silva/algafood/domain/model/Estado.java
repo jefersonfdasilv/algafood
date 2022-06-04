@@ -21,7 +21,7 @@ public class Estado {
 	@Column(nullable = false, length = 200)
 	private String nome;
 	
-	@Column(nullable = false, length = 2)
+	@Column(nullable = false, length = 2, unique = true)
 	private String uf;
 	
 }
