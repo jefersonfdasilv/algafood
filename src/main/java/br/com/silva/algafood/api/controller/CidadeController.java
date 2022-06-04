@@ -51,7 +51,7 @@ public class CidadeController {
 		try {
 			var cidade = new Cidade();
 			cidade.setNome(request.getNome());
-			cidade = cadastroCidade.salvar(cidade, request.getEstadoId());
+			cidade = cadastroCidade.salvar(cidade, request.getUf());
 			return ResponseEntity.status(HttpStatus.CREATED).body(cidade);
 		} catch (EntidadeNaoEncontradaException e) {
 			return ResponseEntity.badRequest().body(e.getMessage());

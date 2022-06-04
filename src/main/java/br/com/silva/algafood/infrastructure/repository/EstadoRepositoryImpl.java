@@ -7,12 +7,12 @@ import javax.persistence.PersistenceContext;
 import javax.transaction.Transactional;
 
 import org.springframework.dao.EmptyResultDataAccessException;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Repository;
 
 import br.com.silva.algafood.domain.model.Estado;
 import br.com.silva.algafood.domain.repository.EstadoRepository;
 
-@Component
+@Repository
 public class EstadoRepositoryImpl implements EstadoRepository {
 
 	@PersistenceContext
@@ -52,5 +52,12 @@ public class EstadoRepositoryImpl implements EstadoRepository {
 			throw new EmptyResultDataAccessException(1);
 		}
 		manager.remove(estado);
+	}
+
+	@Override
+	public Estado consultarPorUf(String uf) {
+		
+		return manager.createQuery("from Estado where uf = :uf", Estado.class)
+				.setParameter("uf", uf.toUpperCase()).getSingleResult();
 	}
 }

@@ -23,6 +23,17 @@ public class CadastroCidadeService {
 		
 		Estado estado = estadoRepository.buscar(estadoId);
 		
+		return persiste(cidade, estado);
+	}
+	
+	public Cidade salvar(Cidade cidade, String uf) {
+		Estado estado = estadoRepository.consultarPorUf(uf);
+		
+		return persiste(cidade, estado);
+	}
+
+	private Cidade persiste(Cidade cidade, Estado estado) {
+		
 		if( estado == null) {
 			throw new EntidadeNaoEncontradaException("Estado informado não localizado.");
 		}
@@ -41,4 +52,6 @@ public class CadastroCidadeService {
 			throw new EntidadeEmUsoException("Cidade não pode ser removida pois esta em uso.");
 		}
 	}
+
+	
 }

@@ -4,6 +4,6 @@ import lombok.Data;
 
 @Data
 public class CreateCidadeRequest {
-	private Long estadoId;
+	private String uf;
 	private String nome;
 }
