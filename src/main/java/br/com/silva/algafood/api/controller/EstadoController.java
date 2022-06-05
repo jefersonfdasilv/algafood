@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 import br.com.silva.algafood.domain.exception.EntidadeEmUsoException;
 import br.com.silva.algafood.domain.exception.EntidadeNaoEncontradaException;
 import br.com.silva.algafood.domain.model.Estado;
-import br.com.silva.algafood.domain.repository.EstadoRepository;
 import br.com.silva.algafood.domain.service.CadastroEstadoService;
 import lombok.AllArgsConstructor;
 
@@ -26,22 +25,19 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class EstadoController {
 
-	private EstadoRepository estadoRepository;
 	private CadastroEstadoService cadastroEstado;
 	@GetMapping
 	public List<Estado> listar() {
-		return estadoRepository.listar();
+		return cadastroEstado.listar();
 	}
 
 	@GetMapping("/{estadoId}")
 	public ResponseEntity<Estado> buscar(@PathVariable Long estadoId) {
-		var estado = estadoRepository.buscar(estadoId);
+		var estado = cadastroEstado.buscar(estadoId);
 
-		if (estado == null) {
-			return ResponseEntity.notFound().build();
-		}
-
-		return ResponseEntity.ok(estado);
+		return estado
+				.map(ResponseEntity::ok)
+				.orElse(ResponseEntity.notFound().build());
 	}
 	
 	@PostMapping
@@ -52,10 +48,12 @@ public class EstadoController {
 
 	@PutMapping("/{estadoId}")
 	public ResponseEntity<Estado> atualizar(@PathVariable Long estadoId, @RequestBody Estado estado) {
-		Estado estadoAtual = estadoRepository.buscar(estadoId);
-		if (estadoAtual == null) {
+		var estadoAtual = cadastroEstado.buscar(estadoId);
+		
+		if(estadoAtual.isEmpty()) {
 			return ResponseEntity.notFound().build();
-		}
+			
+		};
 
 		estado.setId(estadoId);
 		estado = cadastroEstado.salvar(estado);

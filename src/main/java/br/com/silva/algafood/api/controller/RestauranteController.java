@@ -3,6 +3,7 @@ package br.com.silva.algafood.api.controller;
 import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import javax.validation.Valid;
 
@@ -28,7 +29,6 @@ import br.com.silva.algafood.api.model.request.UpdateRestauranteRequest;
 import br.com.silva.algafood.domain.exception.EntidadeEmUsoException;
 import br.com.silva.algafood.domain.exception.EntidadeNaoEncontradaException;
 import br.com.silva.algafood.domain.model.Restaurante;
-import br.com.silva.algafood.domain.repository.RestauranteRepository;
 import br.com.silva.algafood.domain.service.CadastroRestauranteService;
 import lombok.AllArgsConstructor;
 
@@ -37,98 +37,90 @@ import lombok.AllArgsConstructor;
 @AllArgsConstructor
 public class RestauranteController {
 
-	private RestauranteRepository restauranteRepository;
 	private CadastroRestauranteService cadastroRestaurante;
-	
+
 	@GetMapping
-	public List<Restaurante> listar(){
-		return restauranteRepository.listar();
+	public List<Restaurante> listar() {
+		return cadastroRestaurante.listar();
 	}
-	
+
 	@GetMapping("/{restauranteId}")
 	public ResponseEntity<Restaurante> buscar(@PathVariable Long restauranteId) {
-		var restaurante = restauranteRepository.buscar(restauranteId);
-		
-		if(restaurante == null) {
-			return ResponseEntity.notFound().build();
-		}
-		
-		return ResponseEntity.ok(restaurante);
+		Optional<Restaurante> restauranteOptional = cadastroRestaurante.buscar(restauranteId);
+
+		return restauranteOptional.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
 	}
-	
+
 	@PostMapping
 	@ResponseStatus(code = HttpStatus.CREATED)
 	public ResponseEntity<Object> adicionar(@RequestBody CreateRestauranteRequest request) {
 		try {
 			Restaurante restaurante = new Restaurante();
 			BeanUtils.copyProperties(request, restaurante);
-			restaurante =  cadastroRestaurante.salvar(restaurante, request.getCozinhaId());
+			restaurante = cadastroRestaurante.salvar(restaurante, request.getCozinhaId());
 			return ResponseEntity.status(HttpStatus.CREATED).body(restaurante);
 		} catch (EntidadeNaoEncontradaException e) {
-			return ResponseEntity.badRequest().body("Não existe cadastro de cozinha com código "+ request.getCozinhaId());
+			return ResponseEntity.badRequest()
+					.body("Não existe cadastro de cozinha com código " + request.getCozinhaId());
 		}
 	}
-	
+
 	@DeleteMapping("/{restauranteId}")
-	public ResponseEntity<Object> remover(@PathVariable Long restauranteId){
+	public ResponseEntity<Object> remover(@PathVariable Long restauranteId) {
 		try {
 			cadastroRestaurante.excluir(restauranteId);
 			return ResponseEntity.noContent().build();
 		} catch (EntidadeNaoEncontradaException e) {
 			return ResponseEntity.notFound().build();
-		}catch (EntidadeEmUsoException e) {
+		} catch (EntidadeEmUsoException e) {
 			return ResponseEntity.status(HttpStatus.CONFLICT).build();
 		}
 	}
+
 	@PutMapping("/{restauranteId}")
-	public ResponseEntity<?> atualizar(@PathVariable Long restauranteId, @Valid @RequestBody UpdateRestauranteRequest request) {
-		
-		var restaurante = restauranteRepository.buscar(restauranteId);
-		
-		if(restaurante==null) {
-			return ResponseEntity.notFound().build();
-		}
-		
-		restaurante.setNome(request.getNome());
-		restaurante.setTaxaFrete(request.getTaxaFrete());
-		
-		return salvar(restaurante, request.getCozinhaId());
+	public ResponseEntity<?> atualizar(@PathVariable Long restauranteId,
+			@Valid @RequestBody UpdateRestauranteRequest request) {
+
+		Optional<Restaurante> restauranteOptional = cadastroRestaurante.buscar(restauranteId);
+
+		return restauranteOptional.map((restaurante) -> {
+			restaurante.setNome(request.getNome());
+			restaurante.setTaxaFrete(request.getTaxaFrete());
+			return salvar(restaurante, request.getCozinhaId());
+		}).orElse(ResponseEntity.notFound().build());
 	}
-	
+
 	@PatchMapping("/{restauranteId}")
 	public ResponseEntity<?> atualizarParcial(@PathVariable Long restauranteId,
 			@RequestBody Map<String, Object> campos) {
-		Restaurante restauranteAtual = restauranteRepository.buscar(restauranteId);
-		
-		if (restauranteAtual == null) {
-			return ResponseEntity.notFound().build();
-		}
-		
-		merge(campos, restauranteAtual);
-		
-		return salvar(restauranteAtual, restauranteAtual.getCozinha().getId());
+		Optional<Restaurante> restauranteOptional = cadastroRestaurante.buscar(restauranteId);
+
+		return restauranteOptional.map((restauranteAtual) -> {
+			merge(campos, restauranteAtual);
+			return salvar(restauranteAtual, restauranteAtual.getCozinha().getId());
+		}).orElse(ResponseEntity.notFound().build());
 	}
 
 	private void merge(Map<String, Object> dadosOrigem, Restaurante restauranteDestino) {
 		ObjectMapper objectMapper = new ObjectMapper();
 		Restaurante restauranteOrigem = objectMapper.convertValue(dadosOrigem, Restaurante.class);
-		
+
 		dadosOrigem.forEach((nomePropriedade, valorPropriedade) -> {
 			Field field = ReflectionUtils.findField(Restaurante.class, nomePropriedade);
 			field.setAccessible(true);
-			
+
 			Object novoValor = ReflectionUtils.getField(field, restauranteOrigem);
-			
+
 			ReflectionUtils.setField(field, restauranteDestino, novoValor);
 		});
 	}
-	
+
 	private ResponseEntity<?> salvar(Restaurante restaurante, Long cozinhaId) {
 		try {
 			restaurante = cadastroRestaurante.salvar(restaurante, cozinhaId);
 			return ResponseEntity.ok(restaurante);
 		} catch (EntidadeNaoEncontradaException e) {
-			return ResponseEntity.badRequest().body("Não existe cadastro de cozinha com código "+ cozinhaId);
+			return ResponseEntity.badRequest().body("Não existe cadastro de cozinha com código " + cozinhaId);
 		}
 	}
 }

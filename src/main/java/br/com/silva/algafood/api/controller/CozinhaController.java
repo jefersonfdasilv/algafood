@@ -1,8 +1,8 @@
 package br.com.silva.algafood.api.controller;
 
 import java.util.List;
+import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 import br.com.silva.algafood.domain.exception.EntidadeEmUsoException;
 import br.com.silva.algafood.domain.exception.EntidadeNaoEncontradaException;
 import br.com.silva.algafood.domain.model.Cozinha;
-import br.com.silva.algafood.domain.repository.CozinhaRepository;
 import br.com.silva.algafood.domain.service.CadastroCozinhaService;
 import lombok.AllArgsConstructor;
 
@@ -28,24 +27,18 @@ import lombok.AllArgsConstructor;
 @RequestMapping(value = "/cozinhas", produces = MediaType.APPLICATION_JSON_VALUE)
 public class CozinhaController {
 
-	@Autowired
-	private CozinhaRepository cozinhaRepository;
-
 	private CadastroCozinhaService cadastroCozinha;
-	
+
 	@GetMapping
 	public List<Cozinha> listar() {
-		return cozinhaRepository.listar();
+		return cadastroCozinha.listar();
 	}
 
 	@GetMapping("/{cozinhaId}")
 	public ResponseEntity<Cozinha> buscar(@PathVariable Long cozinhaId) {
-		var cozinha = cozinhaRepository.buscar(cozinhaId);
+		Optional<Cozinha> cozinhaOtional = cadastroCozinha.buscar(cozinhaId);
 
-		if (cozinha == null) {
-			return ResponseEntity.notFound().build();
-		}
-		return ResponseEntity.ok(cozinha);
+		return cozinhaOtional.map(ResponseEntity::ok).orElse(ResponseEntity.notFound().build());
 	}
 
 	@PostMapping
@@ -56,20 +49,18 @@ public class CozinhaController {
 
 	@PutMapping("/{cozinhaId}")
 	public ResponseEntity<Cozinha> atualizar(@PathVariable Long cozinhaId, @RequestBody Cozinha cozinha) {
-		Cozinha cozinhaAtual = cozinhaRepository.buscar(cozinhaId);
-		if (cozinhaAtual == null) {
-			return ResponseEntity.notFound().build();
-		}
+		Optional<Cozinha> cozinhaOptional = cadastroCozinha.buscar(cozinhaId);
 
-		cozinha.setId(cozinhaId);
-		cadastroCozinha.salvar(cozinha);
-
-		return ResponseEntity.ok(cozinha);
+		return cozinhaOptional.map((c) -> {
+			cozinha.setId(cozinhaId);
+			cadastroCozinha.salvar(cozinha);
+			return ResponseEntity.ok(cozinha);
+		}).orElse(ResponseEntity.notFound().build());
 	}
-	
+
 	@DeleteMapping("/{cozinhaId}")
 	public ResponseEntity<Object> remover(@PathVariable Long cozinhaId) {
-		
+
 		try {
 			cadastroCozinha.excluir(cozinhaId);
 			return ResponseEntity.noContent().build();
