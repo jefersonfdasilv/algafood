@@ -1,5 +1,8 @@
 package br.com.silva.algafood.domain.service;
 
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.stereotype.Service;
@@ -15,30 +18,35 @@ import lombok.AllArgsConstructor;
 @Service
 @AllArgsConstructor
 public class CadastroRestauranteService {
-	
+
 	private RestauranteRepository restauranteRepository;
 	private CozinhaRepository cozinhaRepository;
-	
+
 	public Restaurante salvar(Restaurante restaurante, Long cozinhaId) {
-		
-		Cozinha cozinha = cozinhaRepository.buscar(cozinhaId);
-		
-		if( cozinha == null) {
-			throw new EntidadeNaoEncontradaException("Cozinha informada não localizada.");
-		}
-		
-		restaurante.setCozinha(cozinha);
-		
-		return restauranteRepository.salvar(restaurante);
+
+		Optional<Cozinha> cozinhaOtional = cozinhaRepository.findById(cozinhaId);
+
+		return cozinhaOtional.map((cozinha) -> {
+			restaurante.setCozinha(cozinha);
+			return restauranteRepository.save(restaurante);
+		}).orElseThrow(() -> new EntidadeNaoEncontradaException("Cozinha informada não localizada."));
 	}
-	
+
 	public void excluir(Long restauranteId) {
 		try {
-			restauranteRepository.remover(restauranteId);
-		}catch (EmptyResultDataAccessException e) {
+			restauranteRepository.deleteById(restauranteId);
+		} catch (EmptyResultDataAccessException e) {
 			throw new EntidadeNaoEncontradaException("Restaurante não encontrado.");
-		}catch (DataIntegrityViolationException e) {
+		} catch (DataIntegrityViolationException e) {
 			throw new EntidadeEmUsoException("Restaurante não pode ser removido pois esta em uso.");
 		}
+	}
+
+	public List<Restaurante> listar() {
+		return restauranteRepository.findAll();
+	}
+
+	public Optional<Restaurante> buscar(Long restauranteId) {
+		return restauranteRepository.findById(restauranteId);
 	}
 }

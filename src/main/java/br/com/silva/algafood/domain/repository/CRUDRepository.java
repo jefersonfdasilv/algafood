@@ -3,9 +3,9 @@ package br.com.silva.algafood.domain.repository;
 import java.util.List;
 
 public interface CRUDRepository<T> {
-	List<T> listar();
-	T buscar(Long id);
-	T salvar(T model);
-	void remover(T model);
-	void remover(Long id);
+	List<T> findAll();
+	T findById(Long id);
+	T save(T model);
+	void delete(T model);
+	void deleteById(Long id);
 }
