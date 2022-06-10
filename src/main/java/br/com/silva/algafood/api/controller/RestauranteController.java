@@ -57,7 +57,7 @@ public class RestauranteController {
 		try {
 			Restaurante restaurante = new Restaurante();
 			BeanUtils.copyProperties(request, restaurante);
-			restaurante = cadastroRestaurante.salvar(restaurante, request.getCozinhaId());
+			restaurante = cadastroRestaurante.salvar(restaurante, request.getCozinhaId(), request.getFormasPagamento());
 			return ResponseEntity.status(HttpStatus.CREATED).body(restaurante);
 		} catch (EntidadeNaoEncontradaException e) {
 			return ResponseEntity.badRequest()
@@ -118,6 +118,15 @@ public class RestauranteController {
 	private ResponseEntity<?> salvar(Restaurante restaurante, Long cozinhaId) {
 		try {
 			restaurante = cadastroRestaurante.salvar(restaurante, cozinhaId);
+			return ResponseEntity.ok(restaurante);
+		} catch (EntidadeNaoEncontradaException e) {
+			return ResponseEntity.badRequest().body("Não existe cadastro de cozinha com código " + cozinhaId);
+		}
+	}
+	
+	private ResponseEntity<?> salvar(Restaurante restaurante, Long cozinhaId, List<Long> formasPagamentoId) {
+		try {
+			restaurante = cadastroRestaurante.salvar(restaurante, cozinhaId, formasPagamentoId);
 			return ResponseEntity.ok(restaurante);
 		} catch (EntidadeNaoEncontradaException e) {
 			return ResponseEntity.badRequest().body("Não existe cadastro de cozinha com código " + cozinhaId);
