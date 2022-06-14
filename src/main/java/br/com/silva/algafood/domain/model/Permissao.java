@@ -15,15 +15,15 @@ import lombok.EqualsAndHashCode;
 @Entity
 @Table(name = "permissoes")
 public class Permissao {
-	
+
 	@EqualsAndHashCode.Include
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	
+
 	@Column(nullable = false, length = 30)
 	private String nome;
-	
+
 	@Column(nullable = false)
 	private String descricao;
 }

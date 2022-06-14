@@ -15,13 +15,13 @@ import lombok.EqualsAndHashCode;
 @Entity
 @Table(name = "forma_pagamentos")
 public class FormaPagamento {
-	
+
 	@Id
 	@EqualsAndHashCode.Include
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	
+
 	@Column(length = 30, nullable = false)
 	private String descricao;
-	
+
 }

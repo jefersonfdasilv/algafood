@@ -9,7 +9,7 @@ import lombok.Data;
 
 @Data
 public class UpdateRestauranteRequest {
-	
+
 	@NotBlank
 	private String nome;
 	@Min(0)

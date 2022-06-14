@@ -17,11 +17,11 @@ public class Estado {
 	@EqualsAndHashCode.Include
 	@Id
 	private Long id;
-	
+
 	@Column(nullable = false, length = 200)
 	private String nome;
-	
+
 	@Column(nullable = false, length = 2, unique = true)
 	private String uf;
-	
+
 }

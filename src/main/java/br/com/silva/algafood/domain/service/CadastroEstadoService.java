@@ -16,13 +16,13 @@ import lombok.AllArgsConstructor;
 @Service
 @AllArgsConstructor
 public class CadastroEstadoService {
-	
+
 	private EstadoRepository estadoRepository;
-	
+
 	public Estado salvar(Estado estado) {
 		return estadoRepository.save(estado);
 	}
-	
+
 	public void excluir(Long estadoId) {
 		try {
 			estadoRepository.deleteById(estadoId);

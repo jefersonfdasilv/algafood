@@ -11,17 +11,17 @@ import lombok.Data;
 
 @Data
 public class CreateRestauranteRequest {
-	
+
 	@NotBlank
 	private String nome;
-	
+
 	@NotNull
 	private BigDecimal taxaFrete;
-	
+
 	@NotNull
 	private Long cozinhaId;
-	
+
 	@NotNull
 	private List<Long> formasPagamento = new ArrayList<>();
-	
+
 }

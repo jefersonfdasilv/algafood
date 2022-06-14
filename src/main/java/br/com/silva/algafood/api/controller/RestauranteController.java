@@ -123,7 +123,7 @@ public class RestauranteController {
 			return ResponseEntity.badRequest().body("Não existe cadastro de cozinha com código " + cozinhaId);
 		}
 	}
-	
+
 	private ResponseEntity<?> salvar(Restaurante restaurante, Long cozinhaId, List<Long> formasPagamentoId) {
 		try {
 			restaurante = cadastroRestaurante.salvar(restaurante, cozinhaId, formasPagamentoId);

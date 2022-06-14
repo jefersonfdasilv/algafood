@@ -17,17 +17,17 @@ import lombok.EqualsAndHashCode;
 @Entity
 @Table(name = "cidades")
 public class Cidade {
-	
+
 	@EqualsAndHashCode.Include
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
-	
+
 	@ManyToOne
 	@JoinColumn(nullable = false)
 	private Estado estado;
-	
+
 	@Column(nullable = false, length = 200)
 	private String nome;
-	
+
 }

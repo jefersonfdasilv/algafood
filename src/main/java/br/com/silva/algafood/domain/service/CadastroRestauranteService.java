@@ -25,24 +25,24 @@ public class CadastroRestauranteService {
 	private RestauranteRepository restauranteRepository;
 	private CozinhaRepository cozinhaRepository;
 	private FormaPagamentoRepository formaPagamentoRepository;
-	
+
 	public Restaurante salvar(Restaurante restaurante, Long cozinhaId, List<Long> formasPagamentoId) {
 
 		Optional<Cozinha> cozinhaOtional = cozinhaRepository.findById(cozinhaId);
 		List<FormaPagamento> formasPagamentos = formaPagamentoRepository.findAll();
-		
+
 		var formasPagamentoRestaurante = formasPagamentos.stream().filter((fp) -> {
 			return formasPagamentoId.contains(fp.getId());
 		}).collect(Collectors.toList());
-		
-		
+
+
 		return cozinhaOtional.map((cozinha) -> {
 			restaurante.setCozinha(cozinha);
 			restaurante.setFormasPagamento(formasPagamentoRestaurante);
 			return restauranteRepository.save(restaurante);
 		}).orElseThrow(() -> new EntidadeNaoEncontradaException("Cozinha informada não localizada."));
 	}
-	
+
 	public Restaurante salvar(Restaurante restaurante, Long cozinhaId) {
 
 		Optional<Cozinha> cozinhaOtional = cozinhaRepository.findById(cozinhaId);
